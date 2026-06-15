@@ -16,6 +16,10 @@
 
 ## Operational Controls
 
+- GitHub Actions run formatting, Rust tests, TypeScript tests, clippy, metadata
+  checks, repo safety checks, and Kani proofs on pull requests.
+- CI forbids `pull_request_target`, automatic deploy commands in workflows,
+  pipe-to-shell installers, secret-like files, and tracked deployment keypairs.
 - Use multisig deployment authority before mainnet.
 - Verify the program keypair resolves to
   `Dmz8DZUBr6RUZsyTMqoBDB6x5TjmaFgjCmSALa1LzJML` before every devnet deploy.

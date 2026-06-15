@@ -1,1 +1,9 @@
 /target/
+.env
+.env.*
+*.pem
+*.p12
+*keypair*.json
+*-keypair.json
+node_modules/
+npm-debug.log

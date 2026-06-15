@@ -1,7 +1,7 @@
 CARGO ?= cargo
 DOCKER_COMPOSE ?= docker compose
 
-.PHONY: build build-sbf check check-program-id clean clippy deploy-devnet docker-build docker-test fmt idl set-devnet-upgrade-authority test verify-kani
+.PHONY: build build-sbf check check-idl check-program-id clean clippy deploy-devnet docker-build docker-test fmt idl security-check set-devnet-upgrade-authority test test-ts verify-kani
 
 build:
 	$(CARGO) build --workspace
@@ -12,11 +12,17 @@ build-sbf:
 check:
 	$(CARGO) check --workspace
 
+check-idl:
+	node scripts/check-deploy-metadata.js
+
 check-program-id:
 	./scripts/check-program-id.sh
 
 test:
 	$(CARGO) test --workspace
+
+test-ts:
+	npm run test:ts
 
 idl:
 	./scripts/publish-idl.sh
@@ -26,6 +32,9 @@ fmt:
 
 clippy:
 	$(CARGO) clippy --workspace --all-targets -- -D warnings
+
+security-check:
+	./scripts/check-repo-safety.sh
 
 verify-kani:
 	$(CARGO) kani --package icpx-payments --harness checked_payment_amount_raw_matches_u64_checked_mul

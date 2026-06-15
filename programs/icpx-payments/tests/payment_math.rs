@@ -18,6 +18,17 @@ fn protocol_fee_is_small_and_fixed() {
 }
 
 #[test]
+fn protocol_fee_rounds_down_for_tiny_settlements() {
+    assert_eq!(checked_protocol_fee_amount(399).expect("fee"), 0);
+    assert_eq!(checked_protocol_fee_amount(400).expect("fee"), 1);
+}
+
+#[test]
+fn protocol_fee_rejects_multiplication_overflow() {
+    assert!(checked_protocol_fee_amount(u64::MAX).is_err());
+}
+
+#[test]
 fn settlement_quote_accounts_for_protocol_fee_without_overpaying_escrow() {
     let quote = quote_stream_settlement(100, 40, 100, 1_000, 60_000).expect("settlement quote");
 
@@ -34,4 +45,24 @@ fn settlement_quote_accounts_for_protocol_fee_without_overpaying_escrow() {
 #[test]
 fn settlement_quote_rejects_fee_inclusive_overpay() {
     assert!(quote_stream_settlement(100, 40, 100, 1_000, 59_999).is_err());
+}
+
+#[test]
+fn settlement_quote_rejects_invalid_unit_bounds() {
+    assert!(quote_stream_settlement(40, 40, 100, 1_000, 60_000).is_err());
+    assert!(quote_stream_settlement(39, 40, 100, 1_000, 60_000).is_err());
+    assert!(quote_stream_settlement(101, 40, 100, 1_000, 60_000).is_err());
+}
+
+#[test]
+fn settlement_quote_rejects_gross_payment_overflow() {
+    assert!(quote_stream_settlement(2, 0, 2, u64::MAX, u64::MAX).is_err());
+}
+
+#[test]
+fn settlement_quote_allows_zero_fee_provider_payout() {
+    let quote = quote_stream_settlement(1, 0, 1, 399, 399).expect("settlement quote");
+    assert_eq!(quote.gross_payment_amount, 399);
+    assert_eq!(quote.protocol_fee_amount, 0);
+    assert_eq!(quote.provider_payment_amount, 399);
 }

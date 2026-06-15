@@ -1,0 +1,11 @@
+{
+  "name": "icpx",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test:ts": "node --test --experimental-strip-types tests/*.test.ts"
+  },
+  "engines": {
+    "node": ">=22.6"
+  }
+}

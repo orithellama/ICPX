@@ -24,6 +24,9 @@
 
 - Install Kani locally from the official Kani distribution.
 - Run `make verify-kani` to execute the formal math harnesses.
+- Run `make security-check` before opening a pull request.
+- Run `make check-idl` to verify deploy metadata and IDL consistency.
+- Run `make test-ts` to run the frontend-facing TypeScript tests.
 - Treat Kani as a proof layer for pure accounting math, not a replacement for Solana integration tests.
 
 ## How To Create A Job
