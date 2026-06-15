@@ -1,10 +1,7 @@
 use borsh::{BorshDeserialize, BorshSerialize};
 use solana_program::{program_error::ProgramError, pubkey::Pubkey};
 
-use crate::{
-    errors::IcpxError,
-    math::checked_payment_amount,
-};
+use crate::{errors::IcpxError, math::checked_payment_amount};
 
 use super::PaymentAsset;
 
@@ -47,6 +44,7 @@ pub struct JobState {
     pub escrow_funded_amount: u64,
     pub settled_units: u64,
     pub total_paid_amount: u64,
+    pub total_protocol_fee_amount: u64,
     pub total_refunded_amount: u64,
     pub created_slot: u64,
     pub start_slot: u64,
@@ -56,7 +54,7 @@ pub struct JobState {
 }
 
 impl JobState {
-    pub const LEN: usize = 2 + (8 * 32) + 1 + PaymentAsset::LEN + (11 * 8) + 1;
+    pub const LEN: usize = 2 + (8 * 32) + 1 + PaymentAsset::LEN + (12 * 8) + 1;
 
     pub fn max_budget_amount(&self) -> Result<u64, ProgramError> {
         checked_payment_amount(self.max_units, self.price_per_unit)
@@ -65,19 +63,29 @@ impl JobState {
     pub fn remaining_escrow_amount(&self) -> Result<u64, ProgramError> {
         self.escrow_funded_amount
             .checked_sub(self.total_paid_amount)
+            .and_then(|remaining| remaining.checked_sub(self.total_protocol_fee_amount))
             .and_then(|remaining| remaining.checked_sub(self.total_refunded_amount))
             .ok_or(IcpxError::MathOverflow.into())
     }
 
-    pub fn record_payment(
+    pub fn record_payment(&mut self, cumulative_units: u64, payment_amount: u64) -> ProgramResult {
+        self.record_payment_with_fee(cumulative_units, payment_amount, 0)
+    }
+
+    pub fn record_payment_with_fee(
         &mut self,
         cumulative_units: u64,
-        payment_amount: u64,
+        provider_payment_amount: u64,
+        protocol_fee_amount: u64,
     ) -> ProgramResult {
         self.settled_units = cumulative_units;
         self.total_paid_amount = self
             .total_paid_amount
-            .checked_add(payment_amount)
+            .checked_add(provider_payment_amount)
+            .ok_or(IcpxError::MathOverflow)?;
+        self.total_protocol_fee_amount = self
+            .total_protocol_fee_amount
+            .checked_add(protocol_fee_amount)
             .ok_or(IcpxError::MathOverflow)?;
         Ok(())
     }

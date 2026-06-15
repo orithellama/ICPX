@@ -1,0 +1,13 @@
+{
+  "cluster": "devnet",
+  "programName": "icpx_payments",
+  "programId": "Dmz8DZUBr6RUZsyTMqoBDB6x5TjmaFgjCmSALa1LzJML",
+  "programKeypair": "target/deploy/icpx_payments-keypair.json",
+  "programSo": "target/deploy/icpx_payments.so",
+  "idl": "idl/icpx_payments.json",
+  "upgradeAuthority": "AgYcC58HhWt9vV8kRro7T77FQgGqpcaBMtNEtNYuKeA1",
+  "programDataAddress": "HFhFrPtgbqPwYrqhCZWT7PAzrXw2F4yixMsGVGsB9CMX",
+  "lastDeployedSlot": 469586991,
+  "lastDeploySignature": "3MrWdKtosK2M7C1XcjyNxDJcAba8FWNjstQCkXfAY4Yrj9sVhi4QWn1vVXuKk9QUF1AbQ1jzL6bg3qcqZiQ2fiMT",
+  "protocolFeeBasisPoints": 25
+}

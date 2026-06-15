@@ -57,8 +57,7 @@ pub fn process_fund_job(program_id: &Pubkey, accounts: &[AccountInfo]) -> Progra
             .ok_or(IcpxError::InvalidPaymentAsset)?;
 
         require_spl_token_program(token_program)?;
-        let requester_token =
-            require_token_account(requester_token_account, &mint, requester.key)?;
+        let requester_token = require_token_account(requester_token_account, &mint, requester.key)?;
         if requester_token.amount < budget {
             return Err(IcpxError::EscrowUnderfunded.into());
         }

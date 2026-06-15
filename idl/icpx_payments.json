@@ -1,0 +1,224 @@
+{
+  "version": "0.1.0",
+  "name": "icpx_payments",
+  "programId": "Dmz8DZUBr6RUZsyTMqoBDB6x5TjmaFgjCmSALa1LzJML",
+  "metadata": {
+    "cluster": "devnet",
+    "encoding": "borsh",
+    "instructionEncoding": "borsh-enum-variant-index",
+    "repository": "https://github.com/icpx/icpx",
+    "license": "MIT",
+    "protocolFeeBasisPoints": 25,
+    "protocolMultisig": "AgYcC58HhWt9vV8kRro7T77FQgGqpcaBMtNEtNYuKeA1",
+    "supportedPaymentAssets": ["Sol", "Usdc", "Icpx"],
+    "icpxMint": "HdeAPoHivsm9MZfeY5tW7apJEprc8Fs594bWmnzfpump",
+    "usdcMint": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"
+  },
+  "instructions": [
+    {
+      "name": "createGpuJob",
+      "variantIndex": 0,
+      "accounts": [
+        { "name": "requester", "isMut": true, "isSigner": true },
+        { "name": "job", "isMut": true, "isSigner": false },
+        { "name": "systemProgram", "isMut": false, "isSigner": false }
+      ],
+      "args": [{ "name": "args", "type": "CreateGpuJobArgs" }]
+    },
+    {
+      "name": "fundJob",
+      "variantIndex": 1,
+      "accounts": [
+        { "name": "requester", "isMut": true, "isSigner": true },
+        { "name": "job", "isMut": true, "isSigner": false },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false,
+          "optionalFor": ["Usdc", "Icpx"]
+        },
+        {
+          "name": "requesterTokenAccount",
+          "isMut": true,
+          "isSigner": false,
+          "optionalFor": ["Sol"]
+        },
+        {
+          "name": "escrowTokenAccount",
+          "isMut": true,
+          "isSigner": false,
+          "optionalFor": ["Sol"]
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false,
+          "optionalFor": ["Sol"]
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "acceptJob",
+      "variantIndex": 2,
+      "accounts": [
+        { "name": "provider", "isMut": false, "isSigner": true },
+        { "name": "job", "isMut": true, "isSigner": false }
+      ],
+      "args": []
+    },
+    {
+      "name": "settleStream",
+      "variantIndex": 3,
+      "accounts": [
+        { "name": "receiptAuthority", "isMut": false, "isSigner": true },
+        { "name": "job", "isMut": true, "isSigner": false },
+        { "name": "providerPaymentAccount", "isMut": true, "isSigner": false },
+        { "name": "protocolFeeAccount", "isMut": true, "isSigner": false },
+        {
+          "name": "escrowTokenAccount",
+          "isMut": true,
+          "isSigner": false,
+          "optionalFor": ["Sol"]
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false,
+          "optionalFor": ["Sol"]
+        }
+      ],
+      "args": [{ "name": "receipt", "type": "GpuStreamReceipt" }]
+    },
+    {
+      "name": "completeJob",
+      "variantIndex": 4,
+      "accounts": [
+        { "name": "authority", "isMut": false, "isSigner": true },
+        { "name": "job", "isMut": true, "isSigner": false },
+        { "name": "providerPaymentAccount", "isMut": true, "isSigner": false },
+        { "name": "requesterRefundAccount", "isMut": true, "isSigner": false },
+        { "name": "protocolFeeAccount", "isMut": true, "isSigner": false },
+        {
+          "name": "escrowTokenAccount",
+          "isMut": true,
+          "isSigner": false,
+          "optionalFor": ["Sol"]
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false,
+          "optionalFor": ["Sol"]
+        }
+      ],
+      "args": [{ "name": "receipt", "type": "GpuStreamReceipt" }]
+    },
+    {
+      "name": "cancelExpiredJob",
+      "variantIndex": 5,
+      "accounts": [
+        { "name": "job", "isMut": true, "isSigner": false },
+        { "name": "requesterRefundAccount", "isMut": true, "isSigner": false },
+        {
+          "name": "escrowTokenAccount",
+          "isMut": true,
+          "isSigner": false,
+          "optionalFor": ["Sol"]
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false,
+          "optionalFor": ["Sol"]
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "openDispute",
+      "variantIndex": 6,
+      "accounts": [
+        { "name": "signer", "isMut": false, "isSigner": true },
+        { "name": "job", "isMut": true, "isSigner": false }
+      ],
+      "args": []
+    }
+  ],
+  "types": [
+    {
+      "name": "CreateGpuJobArgs",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          { "name": "provider", "type": "pubkey" },
+          { "name": "receiptAuthority", "type": "pubkey" },
+          { "name": "metadataHash", "type": { "array": ["u8", 32] } },
+          { "name": "gpuProfileHash", "type": { "array": ["u8", 32] } },
+          { "name": "nvidiaApiHash", "type": { "array": ["u8", 32] } },
+          { "name": "meteringUnit", "type": "GpuMeteringUnit" },
+          { "name": "paymentAsset", "type": "PaymentAsset" },
+          { "name": "clientNonce", "type": "u64" },
+          { "name": "pricePerUnit", "type": "u64" },
+          { "name": "maxUnits", "type": "u64" },
+          { "name": "expirySlot", "type": "u64" }
+        ]
+      }
+    },
+    {
+      "name": "GpuStreamReceipt",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          { "name": "cumulativeUnits", "type": "u64" },
+          { "name": "resultHash", "type": { "array": ["u8", 32] } },
+          { "name": "receiptNonce", "type": "u64" }
+        ]
+      }
+    },
+    {
+      "name": "PaymentAsset",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          { "name": "Sol" },
+          { "name": "Usdc" },
+          { "name": "Icpx" }
+        ]
+      }
+    },
+    {
+      "name": "GpuMeteringUnit",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          { "name": "GpuMillisecond" },
+          { "name": "NvidiaBillingUnit" },
+          { "name": "OutputToken" },
+          { "name": "Request" }
+        ]
+      }
+    }
+  ],
+  "errors": [
+    { "code": 6000, "name": "InvalidInstruction" },
+    { "code": 6001, "name": "InvalidPda" },
+    { "code": 6002, "name": "InvalidSigner" },
+    { "code": 6003, "name": "InvalidStatus" },
+    { "code": 6004, "name": "InvalidTerms" },
+    { "code": 6005, "name": "InvalidGpuTerms" },
+    { "code": 6006, "name": "InvalidReceipt" },
+    { "code": 6007, "name": "JobExpired" },
+    { "code": 6008, "name": "JobNotExpired" },
+    { "code": 6009, "name": "MathOverflow" },
+    { "code": 6010, "name": "EscrowUnderfunded" },
+    { "code": 6011, "name": "InvalidSystemProgram" },
+    { "code": 6012, "name": "InvalidTokenProgram" },
+    { "code": 6013, "name": "InvalidTokenAccount" },
+    { "code": 6014, "name": "InvalidTokenMint" },
+    { "code": 6015, "name": "InvalidTokenOwner" },
+    { "code": 6016, "name": "InvalidEscrowVault" },
+    { "code": 6017, "name": "InvalidPaymentAsset" },
+    { "code": 6018, "name": "InvalidProtocolFeeAccount" }
+  ]
+}

@@ -26,6 +26,7 @@ pub fn process_settle_stream(
     let receipt_authority = next_account_info(account_info_iter)?;
     let job_account = next_account_info(account_info_iter)?;
     let provider_payment_account = next_account_info(account_info_iter)?;
+    let protocol_fee_account = next_account_info(account_info_iter)?;
 
     require_signer(receipt_authority)?;
     let mut job = load_job(program_id, job_account)?;
@@ -48,7 +49,13 @@ pub fn process_settle_stream(
             &job.provider,
             IcpxError::InvalidSigner,
         )?;
-        settle_receipt_sol(job_account, provider_payment_account, &mut job, receipt)?
+        settle_receipt_sol(
+            job_account,
+            provider_payment_account,
+            protocol_fee_account,
+            &mut job,
+            receipt,
+        )?
     } else {
         let escrow_token_account = next_account_info(account_info_iter)?;
         let token_program = next_account_info(account_info_iter)?;
@@ -56,6 +63,7 @@ pub fn process_settle_stream(
             job_account,
             provider_payment_account,
             escrow_token_account,
+            protocol_fee_account,
             token_program,
             &mut job,
             receipt,
@@ -71,8 +79,10 @@ pub fn process_settle_stream(
         cumulative_units: receipt.cumulative_units,
         new_units: quote.new_units,
         payment_asset: job.payment_asset,
-        payment_amount: quote.payment_amount,
+        payment_amount: quote.provider_payment_amount,
+        protocol_fee_amount: quote.protocol_fee_amount,
         total_paid_amount: job.total_paid_amount,
+        total_protocol_fee_amount: job.total_protocol_fee_amount,
     });
 
     Ok(())

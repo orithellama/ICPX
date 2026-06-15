@@ -5,7 +5,7 @@ use crate::{
         require_key, require_spl_token_program, require_token_account, transfer_lamports,
         transfer_spl_tokens,
     },
-    constants::JOB_SEED,
+    constants::{protocol_multisig, JOB_SEED},
     errors::IcpxError,
     instructions::GpuStreamReceipt,
     math::{quote_stream_settlement, SettlementQuote},
@@ -15,6 +15,7 @@ use crate::{
 pub fn settle_receipt_sol(
     job_account: &AccountInfo,
     provider: &AccountInfo,
+    protocol_fee_account: &AccountInfo,
     job: &mut JobState,
     receipt: GpuStreamReceipt,
 ) -> Result<SettlementQuote, solana_program::program_error::ProgramError> {
@@ -23,16 +24,28 @@ pub fn settle_receipt_sol(
     }
 
     let quote = quote_receipt(job, receipt)?;
-    transfer_lamports(job_account, provider, quote.payment_amount)?;
-    record_receipt(job, receipt, quote.payment_amount)?;
+    require_key(
+        protocol_fee_account.key,
+        &protocol_multisig(),
+        IcpxError::InvalidProtocolFeeAccount,
+    )?;
+    transfer_lamports(job_account, provider, quote.provider_payment_amount)?;
+    transfer_lamports(job_account, protocol_fee_account, quote.protocol_fee_amount)?;
+    record_receipt(
+        job,
+        receipt,
+        quote.provider_payment_amount,
+        quote.protocol_fee_amount,
+    )?;
     Ok(quote)
 }
 
-pub fn settle_receipt_tokens(
-    job_account: &AccountInfo,
-    provider_token_account: &AccountInfo,
-    escrow_token_account: &AccountInfo,
-    token_program: &AccountInfo,
+pub fn settle_receipt_tokens<'a>(
+    job_account: &AccountInfo<'a>,
+    provider_token_account: &AccountInfo<'a>,
+    escrow_token_account: &AccountInfo<'a>,
+    protocol_fee_token_account: &AccountInfo<'a>,
+    token_program: &AccountInfo<'a>,
     job: &mut JobState,
     receipt: GpuStreamReceipt,
 ) -> Result<SettlementQuote, solana_program::program_error::ProgramError> {
@@ -49,9 +62,10 @@ pub fn settle_receipt_tokens(
 
     let escrow = require_token_account(escrow_token_account, &mint, job_account.key)?;
     require_token_account(provider_token_account, &mint, &job.provider)?;
+    require_token_account(protocol_fee_token_account, &mint, &protocol_multisig())?;
 
     let quote = quote_receipt(job, receipt)?;
-    if escrow.amount < quote.payment_amount {
+    if escrow.amount < quote.gross_payment_amount {
         return Err(IcpxError::EscrowUnderfunded.into());
     }
 
@@ -61,9 +75,22 @@ pub fn settle_receipt_tokens(
         provider_token_account,
         job_account,
         job,
-        quote.payment_amount,
+        quote.provider_payment_amount,
     )?;
-    record_receipt(job, receipt, quote.payment_amount)?;
+    transfer_from_token_escrow(
+        token_program,
+        escrow_token_account,
+        protocol_fee_token_account,
+        job_account,
+        job,
+        quote.protocol_fee_amount,
+    )?;
+    record_receipt(
+        job,
+        receipt,
+        quote.provider_payment_amount,
+        quote.protocol_fee_amount,
+    )?;
     Ok(quote)
 }
 
@@ -84,11 +111,11 @@ pub fn refund_remaining_sol(
     Ok(refund_amount)
 }
 
-pub fn refund_remaining_tokens(
-    job_account: &AccountInfo,
-    requester_token_account: &AccountInfo,
-    escrow_token_account: &AccountInfo,
-    token_program: &AccountInfo,
+pub fn refund_remaining_tokens<'a>(
+    job_account: &AccountInfo<'a>,
+    requester_token_account: &AccountInfo<'a>,
+    escrow_token_account: &AccountInfo<'a>,
+    token_program: &AccountInfo<'a>,
     job: &mut JobState,
 ) -> ProgramResultWithRefund {
     let mint = job
@@ -143,18 +170,23 @@ fn quote_receipt(
 fn record_receipt(
     job: &mut JobState,
     receipt: GpuStreamReceipt,
-    payment_amount: u64,
+    provider_payment_amount: u64,
+    protocol_fee_amount: u64,
 ) -> Result<(), solana_program::program_error::ProgramError> {
-    job.record_payment(receipt.cumulative_units, payment_amount)?;
+    job.record_payment_with_fee(
+        receipt.cumulative_units,
+        provider_payment_amount,
+        protocol_fee_amount,
+    )?;
     job.last_receipt_nonce = receipt.receipt_nonce;
     Ok(())
 }
 
-fn transfer_from_token_escrow(
-    token_program: &AccountInfo,
-    escrow_token_account: &AccountInfo,
-    destination_token_account: &AccountInfo,
-    job_account: &AccountInfo,
+fn transfer_from_token_escrow<'a>(
+    token_program: &AccountInfo<'a>,
+    escrow_token_account: &AccountInfo<'a>,
+    destination_token_account: &AccountInfo<'a>,
+    job_account: &AccountInfo<'a>,
     job: &JobState,
     amount: u64,
 ) -> Result<(), solana_program::program_error::ProgramError> {

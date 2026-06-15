@@ -1,8 +1,10 @@
 use borsh::{BorshDeserialize, BorshSerialize};
 use solana_program::{
-    account_info::AccountInfo, entrypoint::ProgramResult, program_error::ProgramError,
+    account_info::AccountInfo,
+    entrypoint::ProgramResult,
     instruction::{AccountMeta, Instruction},
     program::{invoke, invoke_signed},
+    program_error::ProgramError,
     pubkey::Pubkey,
 };
 
@@ -156,11 +158,11 @@ pub fn transfer_lamports(from: &AccountInfo, to: &AccountInfo, amount: u64) -> P
     Ok(())
 }
 
-pub fn transfer_spl_tokens(
-    token_program: &AccountInfo,
-    source: &AccountInfo,
-    destination: &AccountInfo,
-    authority: &AccountInfo,
+pub fn transfer_spl_tokens<'a>(
+    token_program: &AccountInfo<'a>,
+    source: &AccountInfo<'a>,
+    destination: &AccountInfo<'a>,
+    authority: &AccountInfo<'a>,
     signer_seeds: Option<&[&[u8]]>,
     amount: u64,
 ) -> ProgramResult {
@@ -202,21 +204,15 @@ fn read_pubkey(data: &[u8], start: usize) -> Result<Pubkey, ProgramError> {
     let end = start
         .checked_add(32)
         .ok_or(IcpxError::InvalidTokenAccount)?;
-    let bytes = data
-        .get(start..end)
-        .ok_or(IcpxError::InvalidTokenAccount)?;
+    let bytes = data.get(start..end).ok_or(IcpxError::InvalidTokenAccount)?;
     let mut pubkey_bytes = [0; 32];
     pubkey_bytes.copy_from_slice(bytes);
     Ok(Pubkey::new_from_array(pubkey_bytes))
 }
 
 fn read_u64(data: &[u8], start: usize) -> Result<u64, ProgramError> {
-    let end = start
-        .checked_add(8)
-        .ok_or(IcpxError::InvalidTokenAccount)?;
-    let bytes = data
-        .get(start..end)
-        .ok_or(IcpxError::InvalidTokenAccount)?;
+    let end = start.checked_add(8).ok_or(IcpxError::InvalidTokenAccount)?;
+    let bytes = data.get(start..end).ok_or(IcpxError::InvalidTokenAccount)?;
     let mut amount_bytes = [0; 8];
     amount_bytes.copy_from_slice(bytes);
     Ok(u64::from_le_bytes(amount_bytes))

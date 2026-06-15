@@ -17,7 +17,7 @@ Agent -> Rust MCP tool call -> wallet signature -> Solana transaction
 
 - Agents connect a wallet once and can request compute through MCP tools.
 - Each request creates a job with a max budget, pricing terms, and metadata hash.
-- Funds are escrowed on Solana before work starts.
+- SOL, USDC, or ICPX funds are escrowed on Solana before work starts.
 - Providers are paid incrementally as compute receipts are submitted.
 - Unused escrow is returned when the job completes, expires, or is cancelled.
 
@@ -45,7 +45,7 @@ The on-chain Rust program owns job state and escrow settlement.
 Responsibilities:
 
 - Create deterministic job and escrow PDAs.
-- Hold prepaid SOL or SPL token funds in escrow.
+- Hold prepaid SOL, USDC, or ICPX funds in escrow.
 - Enforce job status transitions.
 - Release payments only according to accepted streaming receipts.
 - Prevent double settlement with cumulative unit accounting.
@@ -68,12 +68,46 @@ ICPX uses prepaid streaming escrow rather than open-ended billing.
 
 ```text
 max_budget = price_per_unit * max_units
-settlement = min(cumulative_receipted_units, max_units) - already_settled_units
-refund = escrow_balance - total_paid_to_provider
+gross_settlement = (cumulative_receipted_units - already_settled_units) * price_per_unit
+protocol_fee = gross_settlement * 25 / 10_000
+provider_payment = gross_settlement - protocol_fee
+refund = escrow_balance - total_paid_to_provider - total_protocol_fees
 ```
 
 This makes every job bounded. A provider can stream claims as work progresses,
 but cannot withdraw more than the funded job budget.
+
+The on-chain program supports only three payment assets:
+
+- `Sol`: native SOL lamports held by the job PDA.
+- `Usdc`: SPL token escrow using the hard-coded mainnet USDC mint.
+- `Icpx`: SPL token escrow using the hard-coded ICPX mint.
+
+Clients select the asset enum. They never pass an arbitrary mint address.
+
+The protocol fee is immutable in code for this release:
+
+- Fee: `25` basis points, or `0.25%`.
+- Authority: `AgYcC58HhWt9vV8kRro7T77FQgGqpcaBMtNEtNYuKeA1`.
+- The authority pubkey is stored as raw 32 bytes in the program constants.
+- SOL fees are paid directly to the multisig wallet.
+- USDC and ICPX fees are paid to token accounts owned by the multisig.
+
+### Frontend Variable Pricing
+
+Pricing is intentionally variable per job. The frontend or quote engine sets
+`price_per_unit`, `max_units`, and `payment_asset` before the requester signs.
+The program does not hard-code prices; it enforces the requester-approved terms
+with checked arithmetic and a fixed maximum budget:
+
+```text
+max_budget = frontend_price_per_unit * requester_approved_max_units
+```
+
+For enterprise use, the frontend should show the provider, asset, unit type,
+unit price, max units, and total maximum budget before wallet approval. If a
+quote needs auditability, store the quote off-chain and commit its hash in
+`metadata_hash`.
 
 Supported settlement modes:
 
@@ -94,17 +128,24 @@ pub struct Job {
     pub requester: Pubkey,
     pub provider: Pubkey,
     pub receipt_authority: Pubkey,
-    pub mint: Pubkey,
     pub escrow_vault: Pubkey,
     pub metadata_hash: [u8; 32],
+    pub gpu_profile_hash: [u8; 32],
+    pub nvidia_api_hash: [u8; 32],
     pub result_hash: [u8; 32],
+    pub metering_unit: GpuMeteringUnit,
+    pub payment_asset: PaymentAsset,
     pub price_per_unit: u64,
     pub max_units: u64,
+    pub escrow_funded_amount: u64,
     pub settled_units: u64,
-    pub total_paid: u64,
+    pub total_paid_amount: u64,
+    pub total_protocol_fee_amount: u64,
+    pub total_refunded_amount: u64,
     pub created_slot: u64,
     pub start_slot: u64,
     pub expiry_slot: u64,
+    pub last_receipt_nonce: u64,
     pub status: JobStatus,
     pub bump: u8,
 }
@@ -155,8 +196,11 @@ Inputs:
 
 - `provider`
 - `receipt_authority`
-- `mint`
 - `metadata_hash`
+- `gpu_profile_hash`
+- `nvidia_api_hash`
+- `metering_unit`
+- `payment_asset`
 - `price_per_unit`
 - `max_units`
 - `expiry_slot`
@@ -167,17 +211,25 @@ Checks:
 - `price_per_unit > 0`
 - `expiry_slot > current_slot`
 - job PDA is derived from requester, provider, and client nonce
+- payment asset is one of `Sol`, `Usdc`, or `Icpx`
 
 ### `fund_job`
 
-Transfers the max budget into the job escrow vault and moves the job to
-`Funded`.
+Transfers the max budget into escrow and moves the job to `Funded`.
+
+Account layout:
+
+- SOL: `requester`, `job`, `system_program`
+- USDC/ICPX: `requester`, `job`, `requester_token_account`,
+  `escrow_token_account`, `token_program`
 
 Checks:
 
 - signer is `requester`
 - escrow amount equals `price_per_unit * max_units`
 - checked arithmetic is used for all multiplication
+- SPL token accounts use the hard-coded mint for the selected asset
+- SPL escrow token account is owned by the job PDA
 
 ### `accept_job`
 
@@ -193,6 +245,13 @@ Checks:
 
 Pays the provider for newly receipted compute.
 
+Account layout:
+
+- SOL: `receipt_authority`, `job`, `provider_wallet`,
+  `protocol_fee_wallet`
+- USDC/ICPX: `receipt_authority`, `job`, `provider_token_account`,
+  `protocol_fee_token_account`, `escrow_token_account`, `token_program`
+
 Checks:
 
 - job status is `Running`
@@ -200,14 +259,21 @@ Checks:
 - receipt job, requester, and provider match the account data
 - `cumulative_units <= max_units`
 - `cumulative_units > settled_units`
+- SPL token accounts use the hard-coded mint for the selected asset
+- provider token account is owned by the job provider
+- protocol fee destination is the hard-coded multisig or a token account owned
+  by the hard-coded multisig
 
 Settlement:
 
 ```text
 new_units = cumulative_units - settled_units
-payment = new_units * price_per_unit
+gross_payment = new_units * price_per_unit
+protocol_fee = gross_payment * 25 / 10_000
+provider_payment = gross_payment - protocol_fee
 settled_units = cumulative_units
-total_paid = total_paid + payment
+total_paid = total_paid + provider_payment
+total_protocol_fee = total_protocol_fee + protocol_fee
 ```
 
 ### `complete_job`
@@ -220,6 +286,9 @@ Checks:
 - signer is `requester`, `provider`, or `receipt_authority`
 - final receipt does not exceed `max_units`
 - all transfers use the escrow PDA authority
+- refunds return only to the requester wallet or requester-owned token account
+- protocol fee destination is validated before collecting any final-settlement
+  fee
 
 ### `cancel_expired_job`
 
@@ -256,9 +325,11 @@ Input:
 {
   "provider": "solana_pubkey",
   "metadata_hash": "hex_32_bytes",
+  "gpu_profile_hash": "hex_32_bytes",
+  "nvidia_api_hash": "hex_32_bytes",
+  "payment_asset": "Sol | Usdc | Icpx",
   "price_per_unit": 10,
   "max_units": 100000,
-  "mint": "SOL_OR_SPL_MINT",
   "expiry_slot": 123456789
 }
 ```
@@ -369,12 +440,12 @@ Recommended session authorization fields:
 - `session_pubkey`
 - `max_lamports_or_tokens`
 - `allowed_provider`
-- `allowed_mint`
+- `allowed_payment_asset`
 - `expires_at_slot`
 - `nonce`
 
 The on-chain program should reject session-authorized transactions that exceed
-the approved budget, provider, mint, or expiry.
+the approved budget, provider, payment asset, or expiry.
 
 ## Rust Workspace Shape
 
@@ -382,7 +453,30 @@ the approved budget, provider, mint, or expiry.
 icpx/
   programs/
     icpx-payments/
-      src/lib.rs              # Solana on-chain Rust program
+      src/constants.rs        # Hard-coded mints, seeds, and program constants
+      src/errors.rs           # Stable custom error codes and messages
+      src/events.rs           # Borsh-encoded event payloads
+      src/instructions/       # On-chain instruction handlers
+      src/math/               # Checked settlement and pricing math
+      src/state/              # Job state, payment assets, and enums
+      src/lib.rs              # Solana on-chain Rust program entry
+  docs/
+    how-to.md                 # What the protocol does and how to use it
+    doc1.md                   # Short product and architecture overview
+    security.md               # Security model and remaining work
+    verification.md           # Test and Kani verification notes
+    immutability-revenue.md   # Open-source, immutability, and revenue plan
+  tests/
+    payment_flow.test.ts        # TypeScript safety and integration checklist
+  idl/
+    icpx_payments.json          # Repository-published native Borsh IDL
+  deploy/
+    devnet.json                 # Pinned devnet program id and deploy metadata
+  scripts/
+    check-program-id.sh         # Refuses keypairs that resolve to another id
+    deploy-devnet.sh            # Builds and deploys with the pinned id
+    publish-idl.sh              # Copies the IDL into target/idl
+    set-devnet-upgrade-authority.sh # Transfers authority to hard-coded multisig
   crates/
     icpx-mcp-server/
       src/main.rs             # MCP transport and tool registration
@@ -396,16 +490,47 @@ icpx/
 ## Security Requirements
 
 - Never expose private keys through MCP tool inputs, logs, or resources.
+- Keep the program keypair stable and verify it resolves to
+  `Dmz8DZUBr6RUZsyTMqoBDB6x5TjmaFgjCmSALa1LzJML` before devnet deploys.
 - Use PDA-owned escrow vaults so neither requester nor provider can bypass the
   program.
+- Hard-code supported token mints and reject arbitrary mint accounts.
+- Validate SPL token account mint, owner, and token program before every token
+  transfer.
 - Use checked arithmetic for every price, unit, and token calculation.
 - Settle from cumulative receipts to prevent replay overpayment.
 - Bind receipts to `job`, `requester`, `provider`, `result_hash`, and nonce.
 - Enforce status transitions on-chain.
 - Cap every job with `max_units`, `expiry_slot`, and a funded escrow amount.
+- Use Kani verification for pure settlement math and local validator tests for
+  Solana account/CPI behavior.
 - Treat compute metering as an attestation problem. If receipts must be
   trustless, add a verifier layer such as TEE attestation, zk proofs, or a
   provider reputation and slashing system.
+
+## Immutability, Open Source, And Revenue
+
+ICPX should be open source at the protocol layer while earning revenue from
+transparent protocol fees and optional hosted services.
+
+Recommended model:
+
+- Keep the program source open under the workspace license.
+- Charge a small settlement fee at the protocol level once fee accounting is
+  implemented. The current hard-coded fee is `25` bps.
+- Add provider listing or verification fees for marketplace distribution.
+- Sell premium hosted MCP, RPC, and indexer service tiers.
+- Offer enterprise support, compliance reporting, private integrations, and
+  optional hosted dispute or reputation services.
+
+Recommended immutability path:
+
+- Start with a multisig upgrade authority for bug-fix safety.
+- Add a public timelock before material mainnet usage.
+- Deploy audited code and publish reproducible build artifacts.
+- Publish source, build commands, program hash, and deployment transactions.
+- Revoke upgrade authority or transfer it to a timelocked DAO/multisig after
+  audits and production usage prove the code is stable.
 
 ## MVP Build Plan
 
@@ -413,16 +538,16 @@ icpx/
    `settle_stream`, `complete_job`, and `cancel_expired_job`.
 2. Add local validator tests for escrow funding, streaming settlement, overpay
    rejection, expiry refund, and invalid signer rejection.
-3. Build the Rust MCP server with stdio transport first.
-4. Implement wallet signing behind a trait so local keypair, wallet handoff, and
+3. Add Kani verification for pure payment and settlement math.
+4. Build the Rust MCP server with stdio transport first.
+5. Implement wallet signing behind a trait so local keypair, wallet handoff, and
    session keys can share the same tool handlers.
-5. Add MCP tools for job create, accept, settle, complete, cancel, and read.
-6. Add an end-to-end local demo where an agent creates a job, streams two
+6. Add MCP tools for job create, accept, settle, complete, cancel, and read.
+7. Add an end-to-end local demo where an agent creates a job, streams two
    settlements, completes the job, and receives the unused escrow refund.
 
 ## Open Decisions
 
-- Whether payments use SOL or a specific SPL token for the first release.
 - Whether providers are permissionless or registered in an on-chain provider
   registry.
 - Whether compute receipts are signed by the provider, requester, a metering

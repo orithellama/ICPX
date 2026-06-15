@@ -21,6 +21,7 @@ pub enum IcpxError {
     InvalidTokenOwner,
     InvalidEscrowVault,
     InvalidPaymentAsset,
+    InvalidProtocolFeeAccount,
 }
 
 impl From<IcpxError> for ProgramError {
@@ -54,6 +55,7 @@ impl IcpxError {
             IcpxError::InvalidTokenOwner => "InvalidTokenOwner",
             IcpxError::InvalidEscrowVault => "InvalidEscrowVault",
             IcpxError::InvalidPaymentAsset => "InvalidPaymentAsset",
+            IcpxError::InvalidProtocolFeeAccount => "InvalidProtocolFeeAccount",
         }
     }
 
@@ -74,9 +76,14 @@ impl IcpxError {
             IcpxError::InvalidTokenProgram => "The SPL token program account is not valid.",
             IcpxError::InvalidTokenAccount => "A token account is malformed or not initialized.",
             IcpxError::InvalidTokenMint => "A token account uses an unsupported mint.",
-            IcpxError::InvalidTokenOwner => "A token account owner does not match the required party.",
+            IcpxError::InvalidTokenOwner => {
+                "A token account owner does not match the required party."
+            }
             IcpxError::InvalidEscrowVault => "The provided escrow vault is not the funded vault.",
             IcpxError::InvalidPaymentAsset => "The payment asset is unsupported for this path.",
+            IcpxError::InvalidProtocolFeeAccount => {
+                "The protocol fee destination does not match the hard-coded multisig."
+            }
         }
     }
 }
