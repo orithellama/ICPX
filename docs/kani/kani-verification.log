@@ -1,7 +1,7 @@
 cargo kani --package icpx-payments --harness checked_payment_amount_raw_matches_u64_checked_mul
 Kani Rust Verifier 0.67.0 (cargo plugin)
    Compiling icpx-payments v0.1.0 (/Users/llama/codespaces/ICPX/programs/icpx-payments)
-    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.30s
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 1.01s
 Checking harness math::payment::proofs::checked_payment_amount_raw_matches_u64_checked_mul...
 CBMC 6.8.0 (cbmc-6.8.0)
 CBMC version 6.8.0 (cbmc-6.8.0) 64-bit arm64 macos
@@ -14,28 +14,28 @@ Running with 16 object bits, 48 offset bits (user-specified)
 Starting Bounded Model Checking
 aborting path on assume(false) at file programs/icpx-payments/src/math/payment.rs line 97 column 5 function math::payment::proofs::checked_payment_amount_raw_matches_u64_checked_mul thread 0
 aborting path on assume(false) at file programs/icpx-payments/src/math/payment.rs line 108 column 13 function math::payment::proofs::checked_payment_amount_raw_matches_u64_checked_mul thread 0
-Runtime Symex: 0.00366571s
+Runtime Symex: 0.00437108s
 size of program expression: 404 steps
 slicing removed 178 assignments
 Generated 6 VCC(s), 6 remaining after simplification
-Runtime Postprocess Equation: 3.8542e-05s
+Runtime Postprocess Equation: 5.425e-05s
 Passing problem to propositional reduction
 converting SSA
-Runtime Convert SSA: 0.000595667s
+Runtime Convert SSA: 0.000908542s
 Running propositional reduction
 Post-processing
-Runtime Post-process: 4.542e-06s
+Runtime Post-process: 4.875e-06s
 Solving with CaDiCaL 2.0.0
 939 variables, 2690 clauses
 SAT checker: instance is SATISFIABLE
-Runtime Solver: 5.8125e-05s
-Runtime decision procedure: 0.000688375s
+Runtime Solver: 9.5708e-05s
+Runtime decision procedure: 0.00104108s
 Running propositional reduction
 Solving with CaDiCaL 2.0.0
 940 variables, 2691 clauses
 SAT checker: instance is UNSATISFIABLE
-Runtime Solver: 1.05025s
-Runtime decision procedure: 1.05027s
+Runtime Solver: 1.0915s
+Runtime decision procedure: 1.09151s
 
 RESULTS:
 Check 1: math::payment::proofs::checked_payment_amount_raw_matches_u64_checked_mul.assertion.1
@@ -63,14 +63,14 @@ SUMMARY:
  ** 0 of 4 failed
 
 VERIFICATION:- SUCCESSFUL
-Verification Time: 1.0634667s
+Verification Time: 1.1266258s
 
 Manual Harness Summary:
 Complete - 1 successfully verified harnesses, 0 failures, 1 total.
 cargo kani --package icpx-payments --harness checked_payment_amount_raw_rejects_known_overflow
 Kani Rust Verifier 0.67.0 (cargo plugin)
    Compiling icpx-payments v0.1.0 (/Users/llama/codespaces/ICPX/programs/icpx-payments)
-    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.31s
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.34s
 Checking harness math::payment::proofs::checked_payment_amount_raw_rejects_known_overflow...
 CBMC 6.8.0 (cbmc-6.8.0)
 CBMC version 6.8.0 (cbmc-6.8.0) 64-bit arm64 macos
@@ -81,22 +81,22 @@ Removal of function pointers and virtual functions
 Generic Property Instrumentation
 Running with 16 object bits, 48 offset bits (user-specified)
 Starting Bounded Model Checking
-Runtime Symex: 0.00206967s
+Runtime Symex: 0.00198975s
 size of program expression: 151 steps
 slicing removed 111 assignments
 Generated 8 VCC(s), 1 remaining after simplification
-Runtime Postprocess Equation: 1.625e-05s
+Runtime Postprocess Equation: 2.375e-05s
 Passing problem to propositional reduction
 converting SSA
-Runtime Convert SSA: 8.6333e-05s
+Runtime Convert SSA: 9.575e-05s
 Running propositional reduction
 Post-processing
-Runtime Post-process: 3.917e-06s
+Runtime Post-process: 4.042e-06s
 Solving with CaDiCaL 2.0.0
 131 variables, 132 clauses
 SAT checker: instance is SATISFIABLE
-Runtime Solver: 2.9167e-05s
-Runtime decision procedure: 0.000137834s
+Runtime Solver: 2.6166e-05s
+Runtime decision procedure: 0.00014275s
 
 RESULTS:
 Check 1: math::payment::proofs::checked_payment_amount_raw_rejects_known_overflow.assertion.1
@@ -139,14 +139,14 @@ SUMMARY:
  ** 0 of 7 failed
 
 VERIFICATION:- SUCCESSFUL
-Verification Time: 0.008085584s
+Verification Time: 0.00780975s
 
 Manual Harness Summary:
 Complete - 1 successfully verified harnesses, 0 failures, 1 total.
 cargo kani --package icpx-payments --harness checked_protocol_fee_amount_raw_never_exceeds_gross_payment
 Kani Rust Verifier 0.67.0 (cargo plugin)
    Compiling icpx-payments v0.1.0 (/Users/llama/codespaces/ICPX/programs/icpx-payments)
-    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.30s
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.31s
 Checking harness math::payment::proofs::checked_protocol_fee_amount_raw_never_exceeds_gross_payment...
 CBMC 6.8.0 (cbmc-6.8.0)
 CBMC version 6.8.0 (cbmc-6.8.0) 64-bit arm64 macos
@@ -160,28 +160,28 @@ Starting Bounded Model Checking
 aborting path on assume(false) at file /Users/runner/.rustup/toolchains/nightly-2025-11-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/option.rs line 2666 column 15 function <std::option::Option<u64> as std::ops::Try>::branch thread 0
 aborting path on assume(false) at file programs/icpx-payments/src/math/payment.rs line 63 column 5 function math::payment::checked_protocol_fee_amount_raw thread 0
 aborting path on assume(false) at file programs/icpx-payments/src/math/payment.rs line 118 column 5 function math::payment::proofs::checked_protocol_fee_amount_raw_never_exceeds_gross_payment thread 0
-Runtime Symex: 0.00614667s
+Runtime Symex: 0.00598263s
 size of program expression: 506 steps
 slicing removed 270 assignments
 Generated 7 VCC(s), 5 remaining after simplification
-Runtime Postprocess Equation: 9.6834e-05s
+Runtime Postprocess Equation: 7.0959e-05s
 Passing problem to propositional reduction
 converting SSA
-Runtime Convert SSA: 0.00149854s
+Runtime Convert SSA: 0.00168096s
 Running propositional reduction
 Post-processing
-Runtime Post-process: 4.75e-06s
+Runtime Post-process: 4.958e-06s
 Solving with CaDiCaL 2.0.0
 2558 variables, 8654 clauses
 SAT checker: instance is SATISFIABLE
-Runtime Solver: 6.3167e-05s
-Runtime decision procedure: 0.00160358s
+Runtime Solver: 7.925e-05s
+Runtime decision procedure: 0.00181496s
 Running propositional reduction
 Solving with CaDiCaL 2.0.0
 2559 variables, 8655 clauses
 SAT checker: instance is UNSATISFIABLE
-Runtime Solver: 1.2833e-05s
-Runtime decision procedure: 3.1959e-05s
+Runtime Solver: 1.0708e-05s
+Runtime decision procedure: 2.8541e-05s
 
 RESULTS:
 Check 1: core::num::<impl u64>::checked_div.arithmetic_overflow.1
@@ -219,14 +219,14 @@ SUMMARY:
  ** 0 of 6 failed
 
 VERIFICATION:- SUCCESSFUL
-Verification Time: 0.016558543s
+Verification Time: 0.016889958s
 
 Manual Harness Summary:
 Complete - 1 successfully verified harnesses, 0 failures, 1 total.
 cargo kani --package icpx-payments --harness protocol_fee_basis_points_are_below_denominator
 Kani Rust Verifier 0.67.0 (cargo plugin)
    Compiling icpx-payments v0.1.0 (/Users/llama/codespaces/ICPX/programs/icpx-payments)
-    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.33s
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.35s
 Checking harness math::payment::proofs::protocol_fee_basis_points_are_below_denominator...
 CBMC 6.8.0 (cbmc-6.8.0)
 CBMC version 6.8.0 (cbmc-6.8.0) 64-bit arm64 macos
@@ -237,22 +237,22 @@ Removal of function pointers and virtual functions
 Generic Property Instrumentation
 Running with 16 object bits, 48 offset bits (user-specified)
 Starting Bounded Model Checking
-Runtime Symex: 0.000373375s
+Runtime Symex: 0.000430041s
 size of program expression: 27 steps
 slicing removed 17 assignments
 Generated 2 VCC(s), 1 remaining after simplification
-Runtime Postprocess Equation: 1.125e-05s
+Runtime Postprocess Equation: 1.5166e-05s
 Passing problem to propositional reduction
 converting SSA
-Runtime Convert SSA: 1.0458e-05s
+Runtime Convert SSA: 1.7375e-05s
 Running propositional reduction
 Post-processing
-Runtime Post-process: 4.083e-06s
+Runtime Post-process: 4.5e-06s
 Solving with CaDiCaL 2.0.0
 1 variables, 0 clauses
 SAT checker: instance is SATISFIABLE
-Runtime Solver: 3.4042e-05s
-Runtime decision procedure: 6.325e-05s
+Runtime Solver: 4.4125e-05s
+Runtime decision procedure: 8.3709e-05s
 
 RESULTS:
 Check 1: math::payment::proofs::protocol_fee_basis_points_are_below_denominator.assertion.1
@@ -265,14 +265,14 @@ SUMMARY:
  ** 0 of 1 failed
 
 VERIFICATION:- SUCCESSFUL
-Verification Time: 0.0042175s
+Verification Time: 0.004651291s
 
 Manual Harness Summary:
 Complete - 1 successfully verified harnesses, 0 failures, 1 total.
 cargo kani --package icpx-payments --harness checked_protocol_fee_amount_raw_rejects_known_overflow
 Kani Rust Verifier 0.67.0 (cargo plugin)
    Compiling icpx-payments v0.1.0 (/Users/llama/codespaces/ICPX/programs/icpx-payments)
-    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.32s
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.33s
 Checking harness math::payment::proofs::checked_protocol_fee_amount_raw_rejects_known_overflow...
 CBMC 6.8.0 (cbmc-6.8.0)
 CBMC version 6.8.0 (cbmc-6.8.0) 64-bit arm64 macos
@@ -283,22 +283,22 @@ Removal of function pointers and virtual functions
 Generic Property Instrumentation
 Running with 16 object bits, 48 offset bits (user-specified)
 Starting Bounded Model Checking
-Runtime Symex: 0.00326496s
+Runtime Symex: 0.00346233s
 size of program expression: 229 steps
 slicing removed 175 assignments
 Generated 8 VCC(s), 1 remaining after simplification
-Runtime Postprocess Equation: 2.3e-05s
+Runtime Postprocess Equation: 2.0791e-05s
 Passing problem to propositional reduction
 converting SSA
-Runtime Convert SSA: 0.000197833s
+Runtime Convert SSA: 0.000177583s
 Running propositional reduction
 Post-processing
-Runtime Post-process: 4.375e-06s
+Runtime Post-process: 4.709e-06s
 Solving with CaDiCaL 2.0.0
 388 variables, 518 clauses
 SAT checker: instance is SATISFIABLE
-Runtime Solver: 4.0208e-05s
-Runtime decision procedure: 0.000262917s
+Runtime Solver: 3.7083e-05s
+Runtime decision procedure: 0.000240375s
 
 RESULTS:
 Check 1: math::payment::proofs::checked_protocol_fee_amount_raw_rejects_known_overflow.assertion.1
@@ -361,14 +361,14 @@ SUMMARY:
  ** 0 of 11 failed
 
 VERIFICATION:- SUCCESSFUL
-Verification Time: 0.010225667s
+Verification Time: 0.010342416s
 
 Manual Harness Summary:
 Complete - 1 successfully verified harnesses, 0 failures, 1 total.
 cargo kani --package icpx-payments --harness checked_new_units_rejects_invalid_cumulative_units
 Kani Rust Verifier 0.67.0 (cargo plugin)
    Compiling icpx-payments v0.1.0 (/Users/llama/codespaces/ICPX/programs/icpx-payments)
-    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.31s
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.34s
 Checking harness math::payment::proofs::checked_new_units_rejects_invalid_cumulative_units...
 CBMC 6.8.0 (cbmc-6.8.0)
 CBMC version 6.8.0 (cbmc-6.8.0) 64-bit arm64 macos
@@ -379,28 +379,28 @@ Removal of function pointers and virtual functions
 Generic Property Instrumentation
 Running with 16 object bits, 48 offset bits (user-specified)
 Starting Bounded Model Checking
-Runtime Symex: 0.00358604s
+Runtime Symex: 0.00357758s
 size of program expression: 274 steps
 slicing removed 136 assignments
 Generated 9 VCC(s), 3 remaining after simplification
-Runtime Postprocess Equation: 4.6458e-05s
+Runtime Postprocess Equation: 4.3667e-05s
 Passing problem to propositional reduction
 converting SSA
-Runtime Convert SSA: 0.000408291s
+Runtime Convert SSA: 0.000309167s
 Running propositional reduction
 Post-processing
-Runtime Post-process: 4.416e-06s
+Runtime Post-process: 4.292e-06s
 Solving with CaDiCaL 2.0.0
 584 variables, 882 clauses
 SAT checker: instance is SATISFIABLE
-Runtime Solver: 4.5667e-05s
-Runtime decision procedure: 0.000486875s
+Runtime Solver: 4.1e-05s
+Runtime decision procedure: 0.000378541s
 Running propositional reduction
 Solving with CaDiCaL 2.0.0
 585 variables, 883 clauses
 SAT checker: instance is UNSATISFIABLE
-Runtime Solver: 0.000129709s
-Runtime decision procedure: 0.000139667s
+Runtime Solver: 0.000115958s
+Runtime decision procedure: 0.000124917s
 
 RESULTS:
 Check 1: core::num::<impl u64>::checked_sub.arithmetic_overflow.1
@@ -448,14 +448,14 @@ SUMMARY:
  ** 0 of 8 failed
 
 VERIFICATION:- SUCCESSFUL
-Verification Time: 0.011171167s
+Verification Time: 0.012096625s
 
 Manual Harness Summary:
 Complete - 1 successfully verified harnesses, 0 failures, 1 total.
 cargo kani --package icpx-payments --harness checked_new_units_returns_exact_delta_for_valid_units
 Kani Rust Verifier 0.67.0 (cargo plugin)
    Compiling icpx-payments v0.1.0 (/Users/llama/codespaces/ICPX/programs/icpx-payments)
-    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.31s
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.33s
 Checking harness math::payment::proofs::checked_new_units_returns_exact_delta_for_valid_units...
 CBMC 6.8.0 (cbmc-6.8.0)
 CBMC version 6.8.0 (cbmc-6.8.0) 64-bit arm64 macos
@@ -468,28 +468,28 @@ Running with 16 object bits, 48 offset bits (user-specified)
 Starting Bounded Model Checking
 aborting path on assume(false) at file programs/icpx-payments/src/math/payment.rs line 148 column 5 function math::payment::proofs::checked_new_units_returns_exact_delta_for_valid_units thread 0
 aborting path on assume(false) at file programs/icpx-payments/src/math/payment.rs line 159 column 13 function math::payment::proofs::checked_new_units_returns_exact_delta_for_valid_units thread 0
-Runtime Symex: 0.00467812s
+Runtime Symex: 0.00446679s
 size of program expression: 476 steps
 slicing removed 218 assignments
 Generated 7 VCC(s), 7 remaining after simplification
-Runtime Postprocess Equation: 6.9417e-05s
+Runtime Postprocess Equation: 6.075e-05s
 Passing problem to propositional reduction
 converting SSA
-Runtime Convert SSA: 0.000474s
+Runtime Convert SSA: 0.000542417s
 Running propositional reduction
 Post-processing
-Runtime Post-process: 4.458e-06s
+Runtime Post-process: 5.041e-06s
 Solving with CaDiCaL 2.0.0
 800 variables, 1721 clauses
 SAT checker: instance is SATISFIABLE
-Runtime Solver: 0.000290792s
-Runtime decision procedure: 0.000798333s
+Runtime Solver: 0.00034425s
+Runtime decision procedure: 0.000927208s
 Running propositional reduction
 Solving with CaDiCaL 2.0.0
 801 variables, 1722 clauses
 SAT checker: instance is UNSATISFIABLE
-Runtime Solver: 0.000596083s
-Runtime decision procedure: 0.000606666s
+Runtime Solver: 0.000645458s
+Runtime decision procedure: 0.000658125s
 
 RESULTS:
 Check 1: math::payment::proofs::checked_new_units_returns_exact_delta_for_valid_units.unreachable.1
@@ -522,14 +522,14 @@ SUMMARY:
  ** 0 of 5 failed
 
 VERIFICATION:- SUCCESSFUL
-Verification Time: 0.01626775s
+Verification Time: 0.015729375s
 
 Manual Harness Summary:
 Complete - 1 successfully verified harnesses, 0 failures, 1 total.
 cargo kani --package icpx-payments --harness quote_stream_settlement_raw_rejects_over_escrow
 Kani Rust Verifier 0.67.0 (cargo plugin)
    Compiling icpx-payments v0.1.0 (/Users/llama/codespaces/ICPX/programs/icpx-payments)
-    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.31s
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.32s
 Checking harness math::payment::proofs::quote_stream_settlement_raw_rejects_over_escrow...
 CBMC 6.8.0 (cbmc-6.8.0)
 CBMC version 6.8.0 (cbmc-6.8.0) 64-bit arm64 macos
@@ -547,34 +547,34 @@ aborting path on assume(false) at file programs/icpx-payments/src/math/payment.r
 aborting path on assume(false) at file /Users/runner/.rustup/toolchains/nightly-2025-11-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/option.rs line 2666 column 15 function <std::option::Option<u64> as std::ops::Try>::branch thread 0
 aborting path on assume(false) at file /Users/runner/.rustup/toolchains/nightly-2025-11-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/option.rs line 2666 column 15 function <std::option::Option<u64> as std::ops::Try>::branch thread 0
 aborting path on assume(false) at file programs/icpx-payments/src/lib.rs line 0 column 0 function math::payment::quote_stream_settlement_raw thread 0
-Runtime Symex: 0.0310938s
+Runtime Symex: 0.0319582s
 size of program expression: 2242 steps
 slicing removed 1633 assignments
 Generated 23 VCC(s), 15 remaining after simplification
-Runtime Postprocess Equation: 0.000464208s
+Runtime Postprocess Equation: 0.000393416s
 Passing problem to propositional reduction
 converting SSA
-Runtime Convert SSA: 0.00573946s
+Runtime Convert SSA: 0.00552046s
 Running propositional reduction
 Post-processing
-Runtime Post-process: 4.541e-06s
+Runtime Post-process: 5.542e-06s
 Solving with CaDiCaL 2.0.0
 9464 variables, 33858 clauses
 SAT checker: instance is SATISFIABLE
-Runtime Solver: 0.00104571s
-Runtime decision procedure: 0.00691754s
+Runtime Solver: 0.00106496s
+Runtime decision procedure: 0.00669154s
 Running propositional reduction
 Solving with CaDiCaL 2.0.0
 9465 variables, 33859 clauses
 SAT checker: instance is SATISFIABLE
-Runtime Solver: 0.000644375s
-Runtime decision procedure: 0.000717583s
+Runtime Solver: 0.000524833s
+Runtime decision procedure: 0.000582917s
 Running propositional reduction
 Solving with CaDiCaL 2.0.0
 9466 variables, 33860 clauses
 SAT checker: instance is UNSATISFIABLE
-Runtime Solver: 0.0428656s
-Runtime decision procedure: 0.0429022s
+Runtime Solver: 0.0434358s
+Runtime decision procedure: 0.0434657s
 
 RESULTS:
 Check 1: math::payment::checked_protocol_fee_amount_raw.unreachable.1
@@ -658,7 +658,7 @@ SUMMARY:
  ** 0 of 15 failed
 
 VERIFICATION:- SUCCESSFUL
-Verification Time: 0.103037246s
+Verification Time: 0.10298417s
 
 Manual Harness Summary:
 Complete - 1 successfully verified harnesses, 0 failures, 1 total.
@@ -676,22 +676,22 @@ Removal of function pointers and virtual functions
 Generic Property Instrumentation
 Running with 16 object bits, 48 offset bits (user-specified)
 Starting Bounded Model Checking
-Runtime Symex: 0.00640042s
+Runtime Symex: 0.006494s
 size of program expression: 403 steps
 slicing removed 322 assignments
 Generated 9 VCC(s), 1 remaining after simplification
-Runtime Postprocess Equation: 3.8e-05s
+Runtime Postprocess Equation: 4.0417e-05s
 Passing problem to propositional reduction
 converting SSA
-Runtime Convert SSA: 0.000285167s
+Runtime Convert SSA: 0.00025475s
 Running propositional reduction
 Post-processing
-Runtime Post-process: 4.125e-06s
+Runtime Post-process: 3.959e-06s
 Solving with CaDiCaL 2.0.0
 517 variables, 648 clauses
 SAT checker: instance is SATISFIABLE
-Runtime Solver: 3.3958e-05s
-Runtime decision procedure: 0.000342209s
+Runtime Solver: 3.2541e-05s
+Runtime decision procedure: 0.00030875s
 
 RESULTS:
 Check 1: math::payment::proofs::quote_stream_settlement_raw_rejects_gross_payment_overflow.assertion.1
@@ -764,7 +764,7 @@ SUMMARY:
  ** 0 of 13 failed
 
 VERIFICATION:- SUCCESSFUL
-Verification Time: 0.013648125s
+Verification Time: 0.014561958s
 
 Manual Harness Summary:
 Complete - 1 successfully verified harnesses, 0 failures, 1 total.
@@ -790,28 +790,28 @@ aborting path on assume(false) at file /Users/runner/.rustup/toolchains/nightly-
 aborting path on assume(false) at file /Users/runner/.rustup/toolchains/nightly-2025-11-21-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/option.rs line 2666 column 15 function <std::option::Option<u64> as std::ops::Try>::branch thread 0
 aborting path on assume(false) at file programs/icpx-payments/src/lib.rs line 0 column 0 function math::payment::quote_stream_settlement_raw thread 0
 aborting path on assume(false) at file programs/icpx-payments/src/math/payment.rs line 193 column 5 function math::payment::proofs::quote_stream_settlement_raw_never_quotes_more_than_escrow thread 0
-Runtime Symex: 0.0304615s
+Runtime Symex: 0.0317582s
 size of program expression: 2271 steps
 slicing removed 1515 assignments
 Generated 22 VCC(s), 20 remaining after simplification
-Runtime Postprocess Equation: 0.000347875s
+Runtime Postprocess Equation: 0.000383459s
 Passing problem to propositional reduction
 converting SSA
-Runtime Convert SSA: 0.00535254s
+Runtime Convert SSA: 0.00510183s
 Running propositional reduction
 Post-processing
-Runtime Post-process: 4.75e-06s
+Runtime Post-process: 5e-06s
 Solving with CaDiCaL 2.0.0
 10910 variables, 32827 clauses
 SAT checker: instance is SATISFIABLE
-Runtime Solver: 0.00406629s
-Runtime decision procedure: 0.00953288s
+Runtime Solver: 0.00409575s
+Runtime decision procedure: 0.0092955s
 Running propositional reduction
 Solving with CaDiCaL 2.0.0
 10911 variables, 32828 clauses
 SAT checker: instance is UNSATISFIABLE
-Runtime Solver: 0.00272329s
-Runtime decision procedure: 0.00277104s
+Runtime Solver: 0.00274262s
+Runtime decision procedure: 0.00279767s
 
 RESULTS:
 Check 1: core::num::<impl u64>::checked_div.arithmetic_overflow.1
@@ -880,7 +880,7 @@ SUMMARY:
  ** 0 of 12 failed
 
 VERIFICATION:- SUCCESSFUL
-Verification Time: 0.098205835s
+Verification Time: 0.098212205s
 
 Manual Harness Summary:
 Complete - 1 successfully verified harnesses, 0 failures, 1 total.
