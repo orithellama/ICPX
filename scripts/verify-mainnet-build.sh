@@ -63,8 +63,7 @@ solana-verify verify-from-repo \
   --workspace-path "" \
   --skip-prompt \
   $VERIFY_FLAGS \
-  "$REPO_URL" \
-  -- --manifest-path programs/icpx-payments/Cargo.toml
+  "$REPO_URL"
 
 solana-verify remote submit-job \
   -u "$RPC_URL" \
