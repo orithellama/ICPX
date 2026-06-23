@@ -5,7 +5,7 @@ use solana_program::{
 };
 
 use crate::{
-    accounts::{load_job, require_key, require_signer, save_job},
+    account_utils::{load_job, require_key, require_signer, save_job},
     errors::IcpxError,
     events::{emit, IcpxEvent},
     instructions::{

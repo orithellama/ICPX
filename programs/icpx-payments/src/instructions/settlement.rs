@@ -1,7 +1,7 @@
 use solana_program::account_info::AccountInfo;
 
 use crate::{
-    accounts::{
+    account_utils::{
         require_key, require_spl_token_program, require_token_account, transfer_lamports,
         transfer_spl_tokens,
     },

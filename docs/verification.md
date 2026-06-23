@@ -22,7 +22,17 @@ validator and integration tests.
 make test
 make clippy
 make verify-kani
+make verifiable-build
 ```
+
+## Solana Verified Builds
+
+- The project uses `solana-verify` from `solana-foundation/solana-verifiable-build`.
+- `make verifiable-build` runs the deterministic Docker build for `icpx_payments`.
+- `make verify-mainnet-build` uploads verification metadata for the deployed mainnet program and submits the remote job.
+- Verification requires a clean, pushed git commit that exactly matches the deployed binary.
+- Docker must be running before local deterministic builds can execute.
+- The remote submission script defaults to `--skip-build` so Docker is only required for the local reproducibility check.
 
 ## Properties To Keep Proving
 

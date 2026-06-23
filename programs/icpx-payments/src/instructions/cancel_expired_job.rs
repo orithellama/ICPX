@@ -7,7 +7,7 @@ use solana_program::{
 };
 
 use crate::{
-    accounts::{load_job, require_key, save_job},
+    account_utils::{load_job, require_key, save_job},
     errors::IcpxError,
     events::{emit, IcpxEvent},
     instructions::settlement::{refund_remaining_sol, refund_remaining_tokens},

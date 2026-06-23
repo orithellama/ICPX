@@ -115,12 +115,15 @@ assertEqual(
 );
 
 if (targetIdl) {
-  assertEqual(targetIdl.programId, idl.programId, "target idl programId");
-  assertEqual(
-    targetIdl.metadata.protocolMultisig,
-    idl.metadata.protocolMultisig,
-    "target idl protocolMultisig",
-  );
+  const targetProgramId = targetIdl.address ?? targetIdl.programId;
+  assertEqual(targetProgramId, expected.programId, "target idl programId");
+  if (targetIdl.metadata?.protocolMultisig) {
+    assertEqual(
+      targetIdl.metadata.protocolMultisig,
+      idl.metadata.protocolMultisig,
+      "target idl protocolMultisig",
+    );
+  }
 }
 
 assertArrayEqual(

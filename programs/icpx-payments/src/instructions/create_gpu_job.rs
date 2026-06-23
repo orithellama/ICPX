@@ -11,7 +11,7 @@ use solana_program::{
 };
 
 use crate::{
-    accounts::{
+    account_utils::{
         require_nonzero_hash, require_nonzero_pubkey, require_signer, require_system_program,
         save_job,
     },

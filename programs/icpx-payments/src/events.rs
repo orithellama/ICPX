@@ -67,7 +67,7 @@ pub enum IcpxEvent {
 }
 
 pub fn emit(event: &IcpxEvent) {
-    if let Ok(data) = borsh::to_vec(event) {
+    if let Ok(data) = event.try_to_vec() {
         sol_log_data(&[EVENT_PREFIX, &data]);
     }
 }

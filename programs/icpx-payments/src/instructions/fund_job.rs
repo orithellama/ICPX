@@ -10,7 +10,7 @@ use solana_program::{
 };
 
 use crate::{
-    accounts::{
+    account_utils::{
         load_job, require_key, require_signer, require_spl_token_program, require_system_program,
         require_token_account, save_job, transfer_spl_tokens,
     },

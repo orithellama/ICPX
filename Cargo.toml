@@ -8,9 +8,16 @@ license = "MIT"
 repository = "https://github.com/icpx/icpx"
 
 [workspace.lints.clippy]
-checked_conversions = "deny"
-panic = "deny"
-unwrap_used = "deny"
+checked_conversions = { level = "deny" }
+panic = { level = "deny" }
+unwrap_used = { level = "deny" }
 
-[workspace.lints.rust]
-unexpected_cfgs = "allow"
+[profile.release]
+overflow-checks = true
+lto = "fat"
+codegen-units = 1
+
+[profile.release.build-override]
+opt-level = 3
+incremental = false
+codegen-units = 1

@@ -1,7 +1,7 @@
 CARGO ?= cargo
 DOCKER_COMPOSE ?= docker compose
 
-.PHONY: build build-sbf check check-idl check-program-id clean clippy deploy-devnet deploy-mainnet docker-build docker-test fmt idl security-check set-devnet-upgrade-authority test test-ts verify-kani
+.PHONY: build build-sbf check check-idl check-program-id clean clippy deploy-devnet deploy-mainnet docker-build docker-test fmt idl idl-mainnet security-check set-devnet-upgrade-authority test test-ts upgrade-mainnet verifiable-build verify-kani verify-mainnet-build
 
 build:
 	$(CARGO) build --workspace
@@ -26,6 +26,9 @@ test-ts:
 
 idl:
 	./scripts/publish-idl.sh
+
+idl-mainnet:
+	./scripts/publish-mainnet-idl.sh
 
 fmt:
 	$(CARGO) fmt --all
@@ -62,6 +65,15 @@ deploy-devnet:
 
 deploy-mainnet:
 	./scripts/deploy-mainnet.sh
+
+upgrade-mainnet:
+	./scripts/upgrade-mainnet.sh
+
+verifiable-build:
+	./scripts/verifiable-build.sh
+
+verify-mainnet-build:
+	./scripts/verify-mainnet-build.sh
 
 set-devnet-upgrade-authority:
 	./scripts/set-devnet-upgrade-authority.sh

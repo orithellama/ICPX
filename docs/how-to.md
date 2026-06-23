@@ -15,6 +15,7 @@
 
 - Run `make build` to compile the Rust workspace.
 - Run `make build-sbf` to compile the Solana SBF program.
+- Run `anchor build -p icpx_payments` to build the Anchor program and IDL.
 - Run `make check` for a fast compiler check.
 - Run `make test` for Rust unit tests.
 - Run `make clippy` for linting with warnings denied.
@@ -64,7 +65,8 @@
 ## How To Deploy Mainnet
 
 - Run the full release checks first: `make test`, `make test-ts`,
-  `make clippy`, `make security-check`, and `make verify-kani`.
+  `make clippy`, `make security-check`, `make verify-kani`, and
+  `make verifiable-build`.
 - The mainnet deploy guard uses the same pinned program id:
   `Dmz8DZUBr6RUZsyTMqoBDB6x5TjmaFgjCmSALa1LzJML`.
 - Fund a dedicated mainnet fee payer with enough SOL for program rent and
@@ -74,13 +76,29 @@
 - Set `ICPX_CONFIRM_MAINNET_DEPLOY=Dmz8DZUBr6RUZsyTMqoBDB6x5TjmaFgjCmSALa1LzJML`.
 - Optionally set `ICPX_MAINNET_RPC_URL=https://your-mainnet-rpc`.
 - Run `make deploy-mainnet`.
+- For an existing mainnet program, set
+  `ICPX_CONFIRM_MAINNET_UPGRADE=Dmz8DZUBr6RUZsyTMqoBDB6x5TjmaFgjCmSALa1LzJML`
+  and run `make upgrade-mainnet`.
 
 ## How To Publish The IDL
 
-- The repository IDL lives at `idl/icpx_payments.json`.
-- Run `make idl` to copy it to `target/idl/icpx_payments.json`.
-- The program is native Solana/Borsh, not Anchor, so this is a repository-published IDL.
-- Keep `programId` in the IDL equal to the pinned devnet program id.
+- The Anchor IDL is generated at `target/idl/icpx_payments.json`.
+- Run `make idl` to generate the local Anchor IDL.
+- Set `ICPX_IDL_AUTHORITY=/path/to/idl-authority-keypair.json`.
+- Set `ICPX_CONFIRM_MAINNET_IDL=Dmz8DZUBr6RUZsyTMqoBDB6x5TjmaFgjCmSALa1LzJML`.
+- Run `make idl-mainnet` after the Anchor program binary is deployed.
+- Keep the IDL address equal to the pinned program id.
+
+## How To Verify On Solscan
+
+- Install Docker and `solana-verify`.
+- Run `make verifiable-build` to reproduce the program binary in the Solana verified-build container.
+- Commit and push the exact source deployed on-chain.
+- Set `ICPX_VERIFY_KEYPAIR=/path/to/uploader-keypair.json`.
+- Set `ICPX_VERIFY_COMMIT=<public-git-commit-deployed-on-chain>`.
+- Set `ICPX_CONFIRM_MAINNET_VERIFY=Dmz8DZUBr6RUZsyTMqoBDB6x5TjmaFgjCmSALa1LzJML`.
+- Run `make verify-mainnet-build` to upload the verification PDA and submit the remote job.
+- Set `ICPX_VERIFY_SKIP_LOCAL_BUILD=0` if Docker is running and you want the upload script to also verify locally.
 
 ## How To Settle
 
