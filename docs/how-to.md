@@ -61,6 +61,20 @@
   future upgrades after the upgrade authority has been transferred.
 - Do not generate a new program keypair for redeploys; that changes the program address.
 
+## How To Deploy Mainnet
+
+- Run the full release checks first: `make test`, `make test-ts`,
+  `make clippy`, `make security-check`, and `make verify-kani`.
+- The mainnet deploy guard uses the same pinned program id:
+  `Dmz8DZUBr6RUZsyTMqoBDB6x5TjmaFgjCmSALa1LzJML`.
+- Fund a dedicated mainnet fee payer with enough SOL for program rent and
+  transaction fees.
+- Set `ICPX_MAINNET_FEE_PAYER=/path/to/funded-mainnet-keypair.json`.
+- Set `ICPX_UPGRADE_AUTHORITY=/path/to/upgrade-authority-keypair.json`.
+- Set `ICPX_CONFIRM_MAINNET_DEPLOY=Dmz8DZUBr6RUZsyTMqoBDB6x5TjmaFgjCmSALa1LzJML`.
+- Optionally set `ICPX_MAINNET_RPC_URL=https://your-mainnet-rpc`.
+- Run `make deploy-mainnet`.
+
 ## How To Publish The IDL
 
 - The repository IDL lives at `idl/icpx_payments.json`.

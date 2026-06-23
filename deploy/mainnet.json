@@ -1,0 +1,15 @@
+{
+  "cluster": "mainnet-beta",
+  "programName": "icpx_payments",
+  "programId": "Dmz8DZUBr6RUZsyTMqoBDB6x5TjmaFgjCmSALa1LzJML",
+  "programKeypair": "target/deploy/icpx_payments-keypair.json",
+  "programSo": "target/deploy/icpx_payments.so",
+  "programSha256": "cc661a0c8762fe6d3494fbbcd834519090e9e365512f86859eb2a6097825eac3",
+  "idl": "idl/icpx_payments.json",
+  "upgradeAuthority": "FHxH1X8pZ9fsXwMBaJeLd4GwYbKUVZV6pzENA61WzPDH",
+  "programDataAddress": "HFhFrPtgbqPwYrqhCZWT7PAzrXw2F4yixMsGVGsB9CMX",
+  "lastDeployedSlot": 428257790,
+  "lastDeploySignature": "3XJXH7bpR2TvuBwxnXeEBfTzeR4Rgrt2yepBDavekLA7q9FB5h1Cw5pUTXkRyjxBZiA8wFxH77bk6Wj3Ymbn3m5K",
+  "deployedAt": "2026-06-23T01:28:40+02:00",
+  "protocolFeeBasisPoints": 25
+}
