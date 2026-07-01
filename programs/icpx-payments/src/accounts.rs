@@ -9,7 +9,7 @@ use solana_program::{
 };
 
 use crate::{
-    constants::{spl_token_program_id, JOB_SEED},
+    constants::{is_supported_token_program, JOB_SEED},
     errors::IcpxError,
     state::JobState,
 };
@@ -93,17 +93,17 @@ pub fn require_system_program(system_program: &AccountInfo) -> ProgramResult {
 }
 
 pub fn require_spl_token_program(token_program: &AccountInfo) -> ProgramResult {
-    require_key(
-        token_program.key,
-        &spl_token_program_id(),
-        IcpxError::InvalidTokenProgram,
-    )
+    if !is_supported_token_program(token_program.key) {
+        return Err(IcpxError::InvalidTokenProgram.into());
+    }
+    Ok(())
 }
 
 pub fn load_token_account(
     token_account: &AccountInfo,
+    token_program: &Pubkey,
 ) -> Result<TokenAccountSnapshot, ProgramError> {
-    if *token_account.owner != spl_token_program_id() {
+    if token_account.owner != token_program {
         return Err(IcpxError::InvalidTokenAccount.into());
     }
 
@@ -127,8 +127,9 @@ pub fn require_token_account(
     token_account: &AccountInfo,
     expected_mint: &Pubkey,
     expected_owner: &Pubkey,
+    token_program: &Pubkey,
 ) -> Result<TokenAccountSnapshot, ProgramError> {
-    let snapshot = load_token_account(token_account)?;
+    let snapshot = load_token_account(token_account, token_program)?;
     if snapshot.mint != *expected_mint {
         return Err(IcpxError::InvalidTokenMint.into());
     }

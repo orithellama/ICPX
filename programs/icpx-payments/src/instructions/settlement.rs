@@ -60,9 +60,24 @@ pub fn settle_receipt_tokens<'a>(
         IcpxError::InvalidEscrowVault,
     )?;
 
-    let escrow = require_token_account(escrow_token_account, &mint, job_account.key)?;
-    require_token_account(provider_token_account, &mint, &job.provider)?;
-    require_token_account(protocol_fee_token_account, &mint, &protocol_multisig())?;
+    let escrow = require_token_account(
+        escrow_token_account,
+        &mint,
+        job_account.key,
+        token_program.key,
+    )?;
+    require_token_account(
+        provider_token_account,
+        &mint,
+        &job.provider,
+        token_program.key,
+    )?;
+    require_token_account(
+        protocol_fee_token_account,
+        &mint,
+        &protocol_multisig(),
+        token_program.key,
+    )?;
 
     let quote = quote_receipt(job, receipt)?;
     if escrow.amount < quote.gross_payment_amount {
@@ -129,8 +144,18 @@ pub fn refund_remaining_tokens<'a>(
         IcpxError::InvalidEscrowVault,
     )?;
 
-    let escrow = require_token_account(escrow_token_account, &mint, job_account.key)?;
-    require_token_account(requester_token_account, &mint, &job.requester)?;
+    let escrow = require_token_account(
+        escrow_token_account,
+        &mint,
+        job_account.key,
+        token_program.key,
+    )?;
+    require_token_account(
+        requester_token_account,
+        &mint,
+        &job.requester,
+        token_program.key,
+    )?;
 
     let refund_amount = job.remaining_escrow_amount()?;
     if refund_amount > 0 {
